@@ -92,6 +92,68 @@ function generateQuizHtml(quiz: Quiz): string {
       background: rgba(239, 68, 68, 0.2);
       color: #ef4444;
     }
+    /* Modal styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .modal {
+      background: var(--background);
+      color: var(--text);
+      padding: 2rem;
+      border-radius: 8px;
+      text-align: center;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      animation: fadeIn 0.3s ease-out;
+    }
+    .modal h2 {
+      margin: 0 0 1rem;
+    }
+    .modal p {
+      margin: 0.5rem 0;
+    }
+    .modal .score-bar {
+      background: var(--accent);
+      height: 20px;
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 1rem 0;
+    }
+    .modal .score-bar div {
+      background: var(--primary);
+      height: 100%;
+      transition: width 0.4s ease-in-out;
+    }
+    .modal button {
+      background: var(--secondary);
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 1rem;
+    }
+    .modal button:hover {
+      background: var(--primary);
+    }
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
   </style>
 </head>
 <body>
@@ -100,6 +162,16 @@ function generateQuizHtml(quiz: Quiz): string {
     <div id="quiz"></div>
     <button onclick="checkAnswers()">Submit Answers</button>
     <button onclick="retestQuiz()">Retest</button>
+  </div>
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+      <h2>Your Results</h2>
+      <p id="score-text"></p>
+      <div class="score-bar">
+        <div id="score-bar-fill"></div>
+      </div>
+      <button onclick="closeModal()">Close</button>
+    </div>
   </div>
 </body>
 </html>`;
@@ -165,6 +237,8 @@ function enableInputs() {
 }
 
 function checkAnswers() {
+  let correctCount = 0;
+
   shuffledQuestions.forEach((question, index) => {
     const inputName = \`question-\${index}\`;
     const feedbackElement = document.getElementById(\`feedback-\${index}\`);
@@ -201,9 +275,27 @@ function checkAnswers() {
       <p><strong>\${isCorrect ? '✓ Correct' : '✗ Incorrect'}</strong></p>
       <p>Your answer: \${userAnswer || '(No answer)'}</p>
     \`;
+
+    if (isCorrect) correctCount++;
   });
 
   disableInputs();
+  showResults(correctCount, shuffledQuestions.length);
+}
+
+function showResults(correct, total) {
+  const overlay = document.getElementById('modal-overlay');
+  const scoreText = document.getElementById('score-text');
+  const scoreBarFill = document.getElementById('score-bar-fill');
+
+  scoreText.innerText = \`You scored \${correct} out of \${total}\`;
+  scoreBarFill.style.width = \`\${(correct / total) * 100}%\`;
+  overlay.style.display = 'flex';
+}
+
+function closeModal() {
+  const overlay = document.getElementById('modal-overlay');
+  overlay.style.display = 'none';
 }
 
 function retestQuiz() {
