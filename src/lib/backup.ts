@@ -7,6 +7,7 @@ function generateQuizHtml(quiz: any, language: Language = 'en'): string {
     console.error(`Missing translations for language: ${language}`);
     throw new Error(`Translations for language "${language}" are not defined.`);
   }
+
   return `<!DOCTYPE html>
 <html lang="${language}">
 <head>
@@ -215,10 +216,21 @@ function generateQuizHtml(quiz: any, language: Language = 'en'): string {
 </html>`;
 }
 
-function generateQuizJs(quiz: any): string {
-  const questions = JSON.stringify(quiz.questions);
+function generateQuizJs(quiz: any, language: Language): string {
+  const t = translations[language]?.quiz || translations.en.quiz;
 
-  return `const questions = ${questions};
+  return `const questions = ${JSON.stringify(quiz.questions)};
+
+const t = {
+  yourAnswer: "${t.yourAnswer}",
+  noAnswer: "${t.noAnswer}",
+  correctAnswer: "${t.correctAnswer}",
+  incorrectAnswer: "${t.incorrectAnswer}",
+  placeholders: {
+    textAnswer: "${t.placeholders.textAnswer}"
+  },
+  scoreText: "${t.scoreText}"
+};
 
 let shuffledQuestions = [...questions];
 
@@ -237,7 +249,7 @@ function renderQuiz() {
     if (question.type === 'text') {
       answersHtml = \`
         \${codeHtml}
-        <input type="text" name="\${inputName}" placeholder="Type your answer here" />
+        <input type="text" name="\${inputName}" placeholder="\${t.placeholders.textAnswer}" />
       \`;
     } else if (question.options) {
       answersHtml = question.options.map((option, optIndex) => \`
@@ -310,7 +322,7 @@ function checkAnswers() {
     }
 
     const correctAnswer = question.type === 'text'
-      ? question.correctAnswer || '(No correct answer provided)'
+      ? question.correctAnswer || t.noAnswer
       : question.options
           .filter(option => option.isCorrect)
           .map(option => option.text)
@@ -319,9 +331,9 @@ function checkAnswers() {
     feedbackElement.style.display = 'block';
     feedbackElement.className = \`answer-feedback \${isCorrect ? 'correct' : 'incorrect'}\`;
     feedbackElement.innerHTML = \`
-      <p><strong>\${isCorrect ? '✓ Correct' : '✗ Incorrect'}</strong></p>
-      <p>Your answer: \${userAnswer || '(No answer)'}</p>
-      \${!isCorrect ? \`<p>Correct answer: \${correctAnswer}</p>\` : ''}
+      <p><strong>\${isCorrect ? '✓ ' + t.correctAnswer : '✗ ' + t.incorrectAnswer}</strong></p>
+      <p>\${t.yourAnswer}: \${userAnswer || t.noAnswer}</p>
+      \${!isCorrect ? \`<p>\${t.correctAnswer}: \${correctAnswer}</p>\` : ''}
     \`;
 
     if (isCorrect) correctCount++;
@@ -336,7 +348,7 @@ function showResults(correct, total) {
   const scoreText = document.getElementById('score-text');
   const scoreBarFill = document.getElementById('score-bar-fill');
 
-  scoreText.innerText = \`You scored \${correct} out of \${total}\`;
+  scoreText.innerText = \`\${t.scoreText} \${correct} / \${total}\`;
   scoreBarFill.style.width = \`\${(correct / total) * 100}%\`;
   overlay.style.display = 'flex';
 }
@@ -356,10 +368,8 @@ renderQuiz();`;
 }
 
 function downloadQuiz(quiz: any, language?: Language) {
-  // Use the passed language or fallback to the one in localStorage
   const selectedLanguage = language || (localStorage.getItem('language') as Language) || 'en';
 
-  // Generate the HTML and initiate the download
   const htmlBlob = new Blob([generateQuizHtml(quiz, selectedLanguage)], { type: 'text/html' });
   const htmlUrl = URL.createObjectURL(htmlBlob);
   const htmlLink = document.createElement('a');
@@ -368,10 +378,7 @@ function downloadQuiz(quiz: any, language?: Language) {
   htmlLink.click();
   URL.revokeObjectURL(htmlUrl);
 
-
-
-
-  const jsBlob = new Blob([generateQuizJs(quiz)], { type: 'text/javascript' });
+  const jsBlob = new Blob([generateQuizJs(quiz, selectedLanguage)], { type: 'text/javascript' });
   const jsUrl = URL.createObjectURL(jsBlob);
   const jsLink = document.createElement('a');
   jsLink.href = jsUrl;

@@ -1,5 +1,14 @@
 import { translations, Language } from '../i18n/translations'; // Import translations and language types
 
+function escapeHtml(unsafe: string): string {
+  return unsafe
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 function generateQuizHtml(quiz: any, language: Language = 'en'): string {
   const t = translations[language]?.quiz || translations.en.quiz; // Fallback to English
 
@@ -219,7 +228,18 @@ function generateQuizHtml(quiz: any, language: Language = 'en'): string {
 function generateQuizJs(quiz: any, language: Language): string {
   const t = translations[language]?.quiz || translations.en.quiz;
 
-  return `const questions = ${JSON.stringify(quiz.questions)};
+  return `
+const questions = ${JSON.stringify(quiz.questions)};
+
+// Utility function to escape HTML
+function escapeHtml(unsafe) {
+  return unsafe
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
 
 const t = {
   yourAnswer: "${t.yourAnswer}",
@@ -241,9 +261,11 @@ function shuffleQuestions() {
 function renderQuiz() {
   shuffleQuestions();
   const quizElement = document.getElementById('quiz');
+  if (!quizElement) return;
+
   quizElement.innerHTML = shuffledQuestions.map((question, index) => {
     const inputName = \`question-\${index}\`;
-    const codeHtml = question.code ? \`<pre class="code">\${question.code}</pre>\` : '';
+    const codeHtml = question.code ? \`<pre class="code">\${escapeHtml(question.code)}</pre>\` : '';
     let answersHtml = '';
 
     if (question.type === 'text') {
@@ -260,7 +282,7 @@ function renderQuiz() {
                  id="\${inputName}-\${optIndex}" />
           <label for="\${inputName}-\${optIndex}">
             \${option.text}
-            \${option.code ? \`<pre class="code">\${option.code}</pre>\` : ''}
+            \${option.code ? \`<pre class="code">\${escapeHtml(option.code)}</pre>\` : ''}
           </label>
         </div>
       \`).join('');
@@ -278,22 +300,14 @@ function renderQuiz() {
   }).join('');
 }
 
-function disableInputs() {
-  const inputs = document.querySelectorAll('input');
-  inputs.forEach(input => input.disabled = true);
-}
-
-function enableInputs() {
-  const inputs = document.querySelectorAll('input');
-  inputs.forEach(input => input.disabled = false);
-}
-
 function checkAnswers() {
   let correctCount = 0;
 
   shuffledQuestions.forEach((question, index) => {
     const inputName = \`question-\${index}\`;
     const feedbackElement = document.getElementById(\`feedback-\${index}\`);
+
+    if (!feedbackElement) return;
 
     let isCorrect = false;
     let userAnswer = '';
@@ -339,7 +353,6 @@ function checkAnswers() {
     if (isCorrect) correctCount++;
   });
 
-  disableInputs();
   showResults(correctCount, shuffledQuestions.length);
 }
 
@@ -348,6 +361,8 @@ function showResults(correct, total) {
   const scoreText = document.getElementById('score-text');
   const scoreBarFill = document.getElementById('score-bar-fill');
 
+  if (!overlay || !scoreText || !scoreBarFill) return;
+
   scoreText.innerText = \`\${t.scoreText} \${correct} / \${total}\`;
   scoreBarFill.style.width = \`\${(correct / total) * 100}%\`;
   overlay.style.display = 'flex';
@@ -355,11 +370,10 @@ function showResults(correct, total) {
 
 function closeModal() {
   const overlay = document.getElementById('modal-overlay');
-  overlay.style.display = 'none';
+  if (overlay) overlay.style.display = 'none';
 }
 
 function retestQuiz() {
-  enableInputs();
   renderQuiz();
 }
 
