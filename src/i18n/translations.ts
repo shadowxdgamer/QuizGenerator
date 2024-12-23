@@ -14,6 +14,15 @@ export const translations = {
       addQuestion: 'Add Question',
       editQuestion: 'Edit Question',
       randomize: 'Randomize Questions',
+      submit: 'Submit Answers',
+      retest: 'Retest Quiz',
+      yourResults: 'Your Results',
+      scoreText: 'You scored',
+      correctAnswer: 'Correct answer',
+      options : 'Options :',
+      incorrectAnswer: 'Incorrect answer', // Added
+      yourAnswer: 'Your answer',
+      noAnswer: '(No answer)',
       questionTypes: {
         text: 'Text Answer',
         'multiple-choice': 'Multiple Choice',
@@ -24,9 +33,9 @@ export const translations = {
         questionText: 'Enter your question here',
         answerText: 'Enter the correct answer',
         optionText: 'Enter option text',
-        optionalCode: 'Optional: Enter a code snippet here', // Added this key
+        optionalCode: 'Optional: Enter a code snippet here',
+        textAnswer: 'Type your answer here', // Added
       },
-      options: 'Options',
     },
   },
   fr: {
@@ -44,6 +53,15 @@ export const translations = {
       addQuestion: 'Ajouter une Question',
       editQuestion: 'Modifier la Question',
       randomize: 'Questions Aléatoires',
+      submit: 'Soumettre les réponses',
+      options: 'Options',
+      retest: 'Recommencer le Quiz',
+      yourResults: 'Vos Résultats',
+      scoreText: 'Vous avez obtenu',
+      correctAnswer: 'Réponse correcte',
+      incorrectAnswer: 'Réponse incorrecte', // Added
+      yourAnswer: 'Votre réponse',
+      noAnswer: '(Pas de réponse)',
       questionTypes: {
         text: 'Réponse Texte',
         'multiple-choice': 'Choix Multiple',
@@ -54,9 +72,9 @@ export const translations = {
         questionText: 'Entrez votre question ici',
         answerText: 'Entrez la bonne réponse',
         optionText: 'Entrez le texte de l\'option',
-        optionalCode: 'Optionnel : Entrez un extrait de code ici', // Added this key
+        optionalCode: 'Facultatif : Entrez un extrait de code ici',
+        textAnswer: 'Tapez votre réponse ici', // Added
       },
-      options: 'Options',
     },
   },
 };
