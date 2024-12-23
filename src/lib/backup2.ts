@@ -300,16 +300,6 @@ function renderQuiz() {
   }).join('');
 }
 
-function disableInputs() {
-  const inputs = document.querySelectorAll('input');
-  inputs.forEach(input => input.disabled = true);
-}
-
-function enableInputs() {
-  const inputs = document.querySelectorAll('input');
-  inputs.forEach(input => input.disabled = false);
-}
-
 function checkAnswers() {
   let correctCount = 0;
 
@@ -362,7 +352,7 @@ function checkAnswers() {
 
     if (isCorrect) correctCount++;
   });
-  disableInputs();
+
   showResults(correctCount, shuffledQuestions.length);
 }
 
@@ -384,7 +374,6 @@ function closeModal() {
 }
 
 function retestQuiz() {
-  enableInputs();
   renderQuiz();
 }
 
