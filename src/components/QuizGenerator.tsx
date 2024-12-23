@@ -29,10 +29,11 @@ export function QuizGenerator() {
         />
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {quiz.questions.map((question) => (
+          {quiz.questions.map((question, index) => (
             <QuestionCard
               key={question.id}
               question={question}
+              number={index + 1} // Pass question number
               onEdit={(q) => {
                 setEditingQuestion(q);
                 setIsDialogOpen(true);
@@ -41,6 +42,7 @@ export function QuizGenerator() {
             />
           ))}
         </div>
+
 
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <QuestionDialog

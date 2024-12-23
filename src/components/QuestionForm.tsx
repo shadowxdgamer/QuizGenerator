@@ -27,9 +27,9 @@ export function QuestionForm({ onSubmit, initialQuestion }: QuestionFormProps) {
     onSubmit({
       type,
       text,
+      code: code || undefined, // Include code only if provided
       options: type === 'multiple-choice' || type === 'single-choice' ? options : undefined,
       correctAnswer: type === 'text' ? correctAnswer : undefined,
-      code: type === 'code-snippet' ? code : undefined,
     });
   };
 
@@ -60,12 +60,22 @@ export function QuestionForm({ onSubmit, initialQuestion }: QuestionFormProps) {
           onValueChange={(value) => setType(value as QuestionType)}
           className="grid grid-cols-2 gap-4"
         >
-          {Object.entries(t('quiz.questionTypes')).map(([key, label]) => (
-            <div key={key} className="flex items-center space-x-2">
-              <RadioGroupItem value={key} id={key} />
-              <Label htmlFor={key}>{label}</Label>
-            </div>
-          ))}
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="text" id="text" />
+            <Label htmlFor="text">Text Answer</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="single-choice" id="single-choice" />
+            <Label htmlFor="single-choice">Single Choice</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="multiple-choice" id="multiple-choice" />
+            <Label htmlFor="multiple-choice">Multiple Choice</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="code-snippet" id="code-snippet" />
+            <Label htmlFor="code-snippet">Code Snippet</Label>
+          </div>
         </RadioGroup>
       </div>
 

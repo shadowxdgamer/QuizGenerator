@@ -6,18 +6,21 @@ import { Pencil, Trash2 } from 'lucide-react';
 
 interface QuestionCardProps {
   question: Question;
+  number: number; // Prop for question number
   onEdit: (question: Question) => void;
   onDelete: (id: string) => void;
 }
 
-export function QuestionCard({ question, onEdit, onDelete }: QuestionCardProps) {
+export function QuestionCard({ question, number, onEdit, onDelete }: QuestionCardProps) {
   const { t } = useLanguage();
 
   return (
     <Card className="bg-card/50 backdrop-blur-sm border-primary/20">
       <CardHeader className="flex flex-row items-start justify-between space-y-0">
         <div className="flex-1">
-          <h3 className="text-lg font-semibold text-primary">{question.text}</h3>
+          <h3 className="text-lg font-semibold text-primary">
+            Question {number}: {question.text} {/* Add "Question {number}" */}
+          </h3>
           <p className="text-sm text-muted-foreground">{t(`quiz.questionTypes.${question.type}`)}</p>
         </div>
         <div className="flex space-x-2">
