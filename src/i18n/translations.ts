@@ -24,8 +24,9 @@ export const translations = {
         questionText: 'Enter your question here',
         answerText: 'Enter the correct answer',
         optionText: 'Enter option text',
+        optionalCode: 'Optional: Enter a code snippet here', // Added this key
       },
-      options: 'Options', // Added this key
+      options: 'Options',
     },
   },
   fr: {
@@ -53,8 +54,9 @@ export const translations = {
         questionText: 'Entrez votre question ici',
         answerText: 'Entrez la bonne réponse',
         optionText: 'Entrez le texte de l\'option',
+        optionalCode: 'Optionnel : Entrez un extrait de code ici', // Added this key
       },
-      options: 'Options', // Added this key
+      options: 'Options',
     },
   },
 };

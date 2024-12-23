@@ -92,7 +92,6 @@ function generateQuizHtml(quiz: Quiz): string {
       background: rgba(239, 68, 68, 0.2);
       color: #ef4444;
     }
-    /* Modal styles */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -192,10 +191,10 @@ function renderQuiz() {
   const quizElement = document.getElementById('quiz');
   quizElement.innerHTML = shuffledQuestions.map((question, index) => {
     const inputName = \`question-\${index}\`;
+    const codeHtml = question.code ? \`<pre class="code">\${question.code}</pre>\` : '';
     let answersHtml = '';
 
-    if (question.type === 'text' || question.type === 'code-snippet') {
-      const codeHtml = question.code ? \`<pre class="code">\${question.code}</pre>\` : '';
+    if (question.type === 'text') {
       answersHtml = \`
         \${codeHtml}
         <input type="text" name="\${inputName}" placeholder="Type your answer here" />
@@ -213,6 +212,7 @@ function renderQuiz() {
           </label>
         </div>
       \`).join('');
+      answersHtml = \`\${codeHtml}\${answersHtml}\`;
     }
 
     return \`
@@ -246,10 +246,10 @@ function checkAnswers() {
     let isCorrect = false;
     let userAnswer = '';
 
-    if (question.type === 'text' || question.type === 'code-snippet') {
+    if (question.type === 'text') {
       const input = document.querySelector(\`input[name="\${inputName}"]\`);
-      userAnswer = input.value.trim();
-      isCorrect = userAnswer.toLowerCase() === question.correctAnswer?.toLowerCase();
+      userAnswer = input?.value.trim() || '';
+      isCorrect = userAnswer.toLowerCase() === (question.correctAnswer?.toLowerCase() || '');
     } else if (question.options) {
       const selectedInputs = document.querySelectorAll(\`input[name="\${inputName}"]:checked\`);
       const selectedIndices = Array.from(selectedInputs).map(input => Number(input.value));
@@ -263,17 +263,25 @@ function checkAnswers() {
         const selectedInput = selectedInputs[0];
         if (selectedInput) {
           const selectedIndex = Number(selectedInput.value);
-          isCorrect = question.options[selectedIndex]?.isCorrect;
-          userAnswer = question.options[selectedIndex]?.text;
+          isCorrect = question.options[selectedIndex]?.isCorrect || false;
+          userAnswer = question.options[selectedIndex]?.text || '';
         }
       }
     }
+
+    const correctAnswer = question.type === 'text'
+      ? question.correctAnswer || '(No correct answer provided)'
+      : question.options
+          .filter(option => option.isCorrect)
+          .map(option => option.text)
+          .join(', ');
 
     feedbackElement.style.display = 'block';
     feedbackElement.className = \`answer-feedback \${isCorrect ? 'correct' : 'incorrect'}\`;
     feedbackElement.innerHTML = \`
       <p><strong>\${isCorrect ? '✓ Correct' : '✗ Incorrect'}</strong></p>
       <p>Your answer: \${userAnswer || '(No answer)'}</p>
+      \${!isCorrect ? \`<p>Correct answer: \${correctAnswer}</p>\` : ''}
     \`;
 
     if (isCorrect) correctCount++;
