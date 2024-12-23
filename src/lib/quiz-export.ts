@@ -59,22 +59,54 @@ function generateQuizHtml(quiz: Quiz): string {
     }
     input[type="text"], textarea {
       width: 100%;
-      padding: 0.5rem;
+      padding: 0.75rem;
       border: 1px solid var(--accent);
-      border-radius: 4px;
+      border-radius: 8px;
       margin-top: 0.5rem;
+      font-size: 1rem;
+      color: var(--text);
+      background: var(--background);
+      transition: border-color 0.3s ease-in-out;
+    }
+    input[type="text"]:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary);
     }
     input[type="radio"], input[type="checkbox"] {
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--accent);
+      border-radius: 50%; /* Circular for radio buttons */
+      display: inline-block;
       margin-right: 0.5rem;
+      vertical-align: middle; /* Ensures alignment with text */
+      cursor: pointer; /* Change cursor to pointer */
+      transition: background-color 0.3s ease-in-out, border-color 0.3s ease-in-out;
+    }
+    input[type="checkbox"] {
+      border-radius: 4px; /* Square for checkboxes */
+    }
+    input[type="radio"]:checked, input[type="checkbox"]:checked {
+      background-color: var(--primary);
+      border-color: var(--primary);
+    }
+    label {
+      display: inline-block; /* Ensures proper alignment */
+      font-size: 1rem;
+      color: var(--text);
+      vertical-align: middle; /* Aligns with the buttons */
     }
     button {
       background: var(--primary);
       color: white;
       border: none;
       padding: 0.75rem 1.5rem;
-      border-radius: 4px;
+      border-radius: 8px;
       cursor: pointer;
       margin-top: 1rem;
+      font-size: 1rem;
+      transition: background-color 0.3s ease-in-out;
     }
     button:hover {
       background: var(--secondary);
