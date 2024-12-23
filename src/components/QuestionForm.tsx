@@ -27,25 +27,26 @@ export function QuestionForm({ onSubmit, initialQuestion }: QuestionFormProps) {
     onSubmit({
       type,
       text,
-      code: code || undefined, // Include code only if provided
+      code: code || undefined,
       options: type === 'multiple-choice' || type === 'single-choice' ? options : undefined,
-      correctAnswer: type === 'text' ? correctAnswer : undefined,
+      correctAnswer: type === 'text' || type === 'code-snippet' ? correctAnswer : undefined,
     });
   };
 
   const addOption = () => {
-    setOptions([...options, { id: uuidv4(), text: '', isCorrect: false }]);
+    setOptions([...options, { id: uuidv4(), text: '', code: '', isCorrect: false }]);
   };
 
   const removeOption = (index: number) => {
     setOptions(options.filter((_, i) => i !== index));
   };
 
-  const updateOption = (index: number, text: string, isCorrect?: boolean) => {
+  const updateOption = (index: number, text?: string, code?: string, isCorrect?: boolean) => {
     const newOptions = [...options];
     newOptions[index] = {
       ...newOptions[index],
-      text,
+      ...(text !== undefined && { text }),
+      ...(code !== undefined && { code }),
       ...(isCorrect !== undefined && { isCorrect }),
     };
     setOptions(newOptions);
@@ -62,19 +63,19 @@ export function QuestionForm({ onSubmit, initialQuestion }: QuestionFormProps) {
         >
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="text" id="text" />
-            <Label htmlFor="text">Text Answer</Label>
+            <Label htmlFor="text">{t('quiz.questionTypes.text')}</Label>
           </div>
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="single-choice" id="single-choice" />
-            <Label htmlFor="single-choice">Single Choice</Label>
+            <Label htmlFor="single-choice">{t('quiz.questionTypes.single-choice')}</Label>
           </div>
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="multiple-choice" id="multiple-choice" />
-            <Label htmlFor="multiple-choice">Multiple Choice</Label>
+            <Label htmlFor="multiple-choice">{t('quiz.questionTypes.multiple-choice')}</Label>
           </div>
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="code-snippet" id="code-snippet" />
-            <Label htmlFor="code-snippet">Code Snippet</Label>
+            <Label htmlFor="code-snippet">{t('quiz.questionTypes.code-snippet')}</Label>
           </div>
         </RadioGroup>
       </div>
@@ -90,57 +91,81 @@ export function QuestionForm({ onSubmit, initialQuestion }: QuestionFormProps) {
       </div>
 
       {type === 'code-snippet' && (
-        <div className="space-y-4">
-          <Label>Code</Label>
-          <Textarea
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-            placeholder="Enter code snippet"
-            className="font-mono"
-            required
-          />
-        </div>
+        <>
+          <div className="space-y-4">
+            <Label>{t('quiz.questionTypes.code-snippet')}</Label>
+            <Textarea
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              placeholder="Enter the code snippet here"
+              className="font-mono"
+              required
+            />
+          </div>
+          <div className="space-y-4">
+            <Label>{t('quiz.placeholders.answerText')}</Label>
+            <Input
+              value={correctAnswer}
+              onChange={(e) => setCorrectAnswer(e.target.value)}
+              placeholder={t('quiz.placeholders.answerText')}
+              required
+            />
+          </div>
+        </>
       )}
 
       {(type === 'multiple-choice' || type === 'single-choice') && (
         <div className="space-y-4">
-          {options.map((option, index) => (
-            <div key={option.id} className="flex items-center space-x-2">
-              {type === 'multiple-choice' ? (
-                <Checkbox
-                  checked={option.isCorrect}
-                  onCheckedChange={(checked) => updateOption(index, option.text, !!checked)}
-                />
-              ) : (
-                <RadioGroup value={options.findIndex(opt => opt.isCorrect).toString()}>
-                  <RadioGroupItem
-                    value={index.toString()}
-                    onClick={() => {
-                      const newOptions = options.map((opt, i) => ({
-                        ...opt,
-                        isCorrect: i === index,
-                      }));
-                      setOptions(newOptions);
-                    }}
+          <Label>{t('quiz.options')}</Label>
+          <div className="max-h-64 overflow-y-auto border border-gray-200 rounded-md p-2">
+            {options.map((option, index) => (
+              <div key={option.id} className="flex flex-col space-y-2">
+                <div className="flex items-center space-x-2">
+                  {type === 'multiple-choice' ? (
+                    <Checkbox
+                      checked={option.isCorrect}
+                      onCheckedChange={(checked) =>
+                        updateOption(index, undefined, undefined, !!checked)
+                      }
+                    />
+                  ) : (
+                    <RadioGroup value={options.findIndex((opt) => opt.isCorrect).toString()}>
+                      <RadioGroupItem
+                        value={index.toString()}
+                        onClick={() => {
+                          const newOptions = options.map((opt, i) => ({
+                            ...opt,
+                            isCorrect: i === index,
+                          }));
+                          setOptions(newOptions);
+                        }}
+                      />
+                    </RadioGroup>
+                  )}
+                  <Input
+                    value={option.text}
+                    onChange={(e) => updateOption(index, e.target.value, undefined)}
+                    placeholder={t('quiz.placeholders.optionText')}
+                    className="flex-1"
                   />
-                </RadioGroup>
-              )}
-              <Input
-                value={option.text}
-                onChange={(e) => updateOption(index, e.target.value)}
-                placeholder={t('quiz.placeholders.optionText')}
-                required
-              />
-              <Button
-                type="button"
-                variant="destructive"
-                size="icon"
-                onClick={() => removeOption(index)}
-              >
-                ×
-              </Button>
-            </div>
-          ))}
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="icon"
+                    onClick={() => removeOption(index)}
+                  >
+                    ×
+                  </Button>
+                </div>
+                <Textarea
+                  value={option.code || ''}
+                  onChange={(e) => updateOption(index, undefined, e.target.value)}
+                  placeholder="Optional: Enter code snippet for this option"
+                  className="font-mono"
+                />
+              </div>
+            ))}
+          </div>
           <Button
             type="button"
             variant="outline"

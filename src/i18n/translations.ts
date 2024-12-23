@@ -25,6 +25,7 @@ export const translations = {
         answerText: 'Enter the correct answer',
         optionText: 'Enter option text',
       },
+      options: 'Options', // Added this key
     },
   },
   fr: {
@@ -53,6 +54,7 @@ export const translations = {
         answerText: 'Entrez la bonne réponse',
         optionText: 'Entrez le texte de l\'option',
       },
+      options: 'Options', // Added this key
     },
   },
 };
